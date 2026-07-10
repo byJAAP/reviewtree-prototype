@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReviewTree — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green: #3A7D44;
+  --green-dark: #2d6337;
+  --green-light: #5CB870;
+  --lime: #87bd36;
+  --orange: #ef7d05;
+  --blue: #0066aa;
+  --bg: #F9FAFB;
+  --card: #FFFFFF;
+  --title: #101828;
+  --subtitle: #4A5565;
+  --green-text: #016630;
+  --light-green-bg: #F0FDF4;
+  --grey: #BEBEBE;
+  --border: #E5E7EB;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: var(--bg);
+  color: var(--title);
+  min-height: 100vh;
+}
+
+/* ── Screens ── */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── TOP NAV ── */
+.topnav {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-logo {
+  font-family: 'Comfortaa', cursive;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.nav-link {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--subtitle);
+  cursor: pointer;
+  border-radius: 20px;
+  transition: all 0.15s;
+  border: 1.5px solid transparent;
+  background: none;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.nav-link:hover { border-color: var(--border); color: var(--title); }
+.nav-link.active { color: white; background: #87bd36; border-color: #87bd36; }
+
+/* ── MOBILE NAV BAR ── */
+.mobile-nav {
+  display: none;
+  position: sticky;
+  top: 60px;
+  z-index: 99;
+  background: white;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.mobile-nav::-webkit-scrollbar { display: none; }
+.mobile-nav-inner {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px;
+  width: max-content;
+}
+.mobile-nav-link {
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--subtitle);
+  cursor: pointer;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: white;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.mobile-nav-link.active { color: white; background: #87bd36; border-color: #87bd36; }
+.mobile-nav-link:hover { border-color: #87bd36; color: #87bd36; }
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+.nav-user:hover { background: var(--bg); }
+.avatar-sm {
+  width: 34px; height: 34px;
+  background: #0066aa;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: white;
+  flex-shrink: 0;
+}
+.nav-user-name { font-size: 13px; font-weight: 700; color: var(--title); }
+
+/* ── PAGE LAYOUT ── */
+.page-wrap {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 36px 24px 60px;
+}
+
+/* ── HERO BANNER ── */
+.hero-banner {
+  background: linear-gradient(135deg, #0066aa 0%, #87bd36 100%);
+  border-radius: 20px;
+  padding: 28px 32px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.hero-left {}
+.hero-greeting {
+  font-family: 'Comfortaa', cursive;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.hero-sub { font-size: 13px; opacity: 0.85; margin-bottom: 16px; }
+.hero-social {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 20px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.hero-streak {
+  text-align: center;
+  background: rgba(255,255,255,0.18);
+  border-radius: 16px;
+  padding: 16px 24px;
+  flex-shrink: 0;
+}
+.streak-label-top { font-size: 11px; font-weight: 600; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.streak-number { font-family: 'Comfortaa', cursive; font-size: 40px; font-weight: 700; line-height: 1; }
+.streak-label-bot { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+
+/* ── TWO-COL GRID ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.full-col { margin-bottom: 20px; }
+.year-row { display: grid; grid-template-columns: 72fr 28fr; gap: 20px; margin-bottom: 20px; align-items: stretch; }
+
+/* ── HISTORY TIMELINE ── */
+.history-card { background: white; border-radius: 18px; padding: 24px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+.tl-list { position: relative; padding-left: 20px; margin-top: 16px; }
+.tl-list::before { content: ''; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 1.5px; background: var(--border); border-radius: 2px; }
+.tl-item { position: relative; margin-bottom: 20px; }
+.tl-item:last-child { margin-bottom: 0; }
+.tl-dot { position: absolute; left: -17px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--lime); border: 2px solid white; box-shadow: 0 0 0 1.5px var(--lime); }
+.tl-dot.orange { background: var(--orange); box-shadow: 0 0 0 1.5px var(--orange); }
+.tl-year { font-size: 11px; color: var(--muted); margin-bottom: 3px; font-weight: 600; letter-spacing: .04em; }
+.tl-tree-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.tl-detail { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+/* ── CARD ── */
+.card {
+  background: white;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.card-title {
+  font-family: 'Comfortaa', cursive;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--title);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-sub { font-size: 12px; color: var(--subtitle); margin-bottom: 18px; }
+
+/* ── GROWTH CARD ── */
+.growth-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+.tree-display {
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tree-display svg { width: 100%; height: 100%; }
+.phase-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--subtitle);
+  text-align: center;
+}
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFF7ED;
+  color: var(--orange);
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Comfortaa', cursive;
+  padding: 6px 16px;
+  border-radius: 20px;
+}
+
+/* ── CHECK-IN CARD ── */
+.checkin-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--light-green-bg);
+  border-radius: 14px;
+  padding: 32px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green-text);
+  text-align: center;
+  min-height: 180px;
+}
+.checkin-done .done-icon {
+  width: 48px; height: 48px;
+  background: white;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.checkin-done .next-week { font-size: 12px; color: var(--subtitle); font-weight: 500; margin-top: 2px; }
+
+/* ── YEAR OVERVIEW ── */
+.year-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.year-stats {
+  display: flex;
+  gap: 28px;
+  margin-bottom: 16px;
+}
+.year-stat-num {
+  font-family: 'Comfortaa', cursive;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--green);
+}
+.year-stat-num.orange { color: var(--orange); }
+.year-stat-label { font-size: 11px; color: var(--subtitle); font-weight: 600; margin-top: 2px; }
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(18, 1fr);
+  gap: 5px;
+  margin-bottom: 14px;
+  margin-top: auto;
+}
+.week-dot {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--border);
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  color: white;
+  min-width: 0;
+}
+.week-dot.gedaan { background: var(--lime); }
+.week-dot.overgeslagen { background: var(--orange); }
+.week-dot.vakantie { background: var(--blue); }
+.week-dot.current { box-shadow: 0 0 0 2.5px var(--green); background: var(--lime); }
+.week-dot.future { opacity: 0.25; }
+.year-legend { display: flex; gap: 16px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--subtitle); font-weight: 500; }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.year-foot { margin-top: 12px; font-size: 12px; color: var(--subtitle); }
+
+/* ── LEGENDA ℹ ── */
+.legend-info-wrap { position: relative; }
+.legend-info-btn { background: none; border: 1.5px solid var(--border); border-radius: 50%; width: 26px; height: 26px; font-size: 13px; cursor: pointer; color: var(--subtitle); display: flex; align-items: center; justify-content: center; line-height: 1; }
+.legend-info-btn:hover { border-color: var(--green); color: var(--green); }
+.legend-tooltip { display: none; position: absolute; right: 0; top: 34px; background: white; border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; z-index: 50; box-shadow: 0 4px 16px rgba(0,0,0,.08); white-space: nowrap; flex-direction: column; gap: 8px; }
+.legend-tooltip.open { display: flex; }
+.week-dot.retro-available { cursor: pointer; background: #b0b0b0 !important; color: white; outline: 2px dashed #b0b0b0; outline-offset: 2px; }
+.week-dot.retro-available:hover { transform: scale(1.15); }
+
+/* ── RETRO POPOVER ── */
+.retro-popover { display: none; position: fixed; background: white; border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; box-shadow: 0 8px 24px rgba(0,0,0,.12); z-index: 1000; min-width: 260px; }
+.retro-popover.open { display: block; }
+.retro-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.retro-sub { font-size: 12px; color: var(--subtitle); margin-bottom: 14px; }
+.retro-buttons { display: flex; flex-direction: column; gap: 8px; }
+.retro-btn { border: 2px solid; border-radius: 10px; padding: 9px 14px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px; background: white; transition: all 0.15s; }
+.retro-btn.gedaan { border-color: #87bd36; color: #87bd36; }
+.retro-btn.gedaan:hover { background: #87bd36; color: white; }
+.retro-btn.overgeslagen { border-color: #ef7d05; color: #ef7d05; }
+.retro-btn.overgeslagen:hover { background: #ef7d05; color: white; }
+.retro-btn.vakantie { border-color: #0066aa; color: #0066aa; }
+.retro-btn.vakantie:hover { background: #0066aa; color: white; }
+.retro-close { position: absolute; top: 12px; right: 14px; background: none; border: none; font-size: 14px; color: var(--subtitle); cursor: pointer; }
+
+/* ── COMMUNITY ── */
+.community-list { display: flex; flex-direction: column; }
+.community-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.community-item:last-child { border-bottom: none; }
+.comm-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700;
+  flex-shrink: 0;
+}
+.comm-info { flex: 1; }
+.comm-name { font-size: 14px; font-weight: 700; color: var(--title); }
+.comm-meta { font-size: 12px; color: var(--subtitle); margin-top: 2px; }
+.comm-right { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
+.comm-right.done { color: #87bd36; }
+.comm-right.skipped { color: var(--orange); }
+.comm-right.vacation { color: var(--blue); }
+
+/* ── CHECK-IN BUTTONS ── */
+.checkin-buttons { display: flex; flex-direction: row; gap: 10px; }
+.checkin-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px 12px;
+  border-radius: 14px;
+  border: 2px solid;
+  background: white;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: 'Montserrat', sans-serif;
+  text-align: center;
+  flex: 1;
+  min-height: 100px;
+}
+.checkin-btn.gedaan { border-color: var(--lime); color: var(--lime); }
+.checkin-btn.gedaan:hover { background: var(--lime); color: white; }
+.checkin-btn.overgeslagen { border-color: var(--orange); color: var(--orange); }
+.checkin-btn.overgeslagen:hover { background: var(--orange); color: white; }
+.checkin-btn.vakantie { border-color: var(--blue); color: var(--blue); }
+.checkin-btn.vakantie:hover { background: var(--blue); color: white; }
+.btn-icon {
+  font-size: 22px;
+  line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-title { font-size: 13px; font-weight: 700; line-height: 1.2; }
+.btn-desc { display: none; }
+
+.progress-bar-wrap { margin-top: 16px; }
+.progress-bar { height: 8px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 6px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--lime)); border-radius: 10px; }
+.progress-label { font-size: 12px; color: var(--subtitle); }
+
+/* ── PROFILE ── */
+.profile-hero { display: flex; align-items: center; gap: 20px; margin-bottom: 24px; }
+.avatar-lg {
+  width: 68px; height: 68px;
+  background: #87bd36;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 700; color: white;
+  flex-shrink: 0;
+}
+.profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+.profile-stat { background: var(--bg); border-radius: 12px; padding: 16px; text-align: center; }
+.profile-stat-num { font-family: 'Comfortaa', cursive; font-size: 26px; font-weight: 700; color: var(--green); }
+.profile-stat-label { font-size: 11px; color: var(--subtitle); font-weight: 600; margin-top: 4px; }
+
+/* ── PROFILE HISTORY ── */
+.profile-history { margin: 4px 0 20px; }
+.ph-item { display: flex; gap: 14px; }
+.ph-year-col { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 14px; }
+.ph-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--lime); border: 2px solid white; box-shadow: 0 0 0 1.5px var(--lime); flex-shrink: 0; margin-top: 3px; }
+.ph-dot.orange { background: var(--orange); box-shadow: 0 0 0 1.5px var(--orange); }
+.ph-line { width: 2px; background: var(--border); flex: 1; margin: 4px 0; min-height: 20px; }
+.ph-item.last .ph-line { display: none; }
+.ph-content { padding-bottom: 18px; }
+.ph-year { font-size: 11px; font-weight: 700; color: var(--subtitle); letter-spacing: .04em; margin-bottom: 2px; display: flex; align-items: center; gap: 6px; }
+.ph-tree { font-size: 14px; font-weight: 700; color: var(--title); margin-bottom: 2px; }
+.ph-detail { font-size: 12px; color: var(--subtitle); }
+.ph-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+.ph-badge.current { background: #dcfce7; color: #166534; }
+.ph-badge.start { background: #f0f9ff; color: #0369a1; }
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-label { font-size: 14px; font-weight: 600; color: var(--title); }
+.settings-value { font-size: 13px; color: var(--subtitle); }
+.toggle { width: 44px; height: 24px; background: var(--green); border-radius: 12px; position: relative; cursor: pointer; flex-shrink: 0; }
+.toggle::after { content:''; position:absolute; width:20px; height:20px; background:white; border-radius:50%; top:2px; right:2px; }
+.toggle.off { background: var(--border); }
+.toggle.off::after { right:auto; left:2px; }
+.select-field { border:1.5px solid var(--border); border-radius:8px; padding:7px 12px; font-family:'Montserrat',sans-serif; font-size:13px; color:var(--title); background:white; cursor:pointer; }
+.settings-section-label { font-size:12px; font-weight:700; color:var(--subtitle); text-transform:uppercase; letter-spacing:0.5px; margin:20px 0 4px; }
+
+/* ── ADMIN ── */
+.stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+.stat-card { background: white; border-radius: 14px; padding: 20px 24px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+.stat-number { font-family:'Comfortaa',cursive; font-size:32px; font-weight:700; color:var(--green); }
+.stat-label { font-size:12px; color:var(--subtitle); font-weight:600; margin-top:4px; }
+.invite-row { display:flex; gap:10px; }
+.invite-row .input-field { margin-bottom:0; flex:1; }
+.participant-table { width:100%; border-collapse:collapse; }
+.participant-table th { text-align:left; font-size:11px; font-weight:700; color:var(--subtitle); text-transform:uppercase; letter-spacing:0.5px; padding:0 12px 12px; border-bottom:1px solid var(--border); }
+.participant-table td { padding:14px 12px; border-bottom:1px solid var(--border); font-size:14px; vertical-align:middle; }
+.participant-table tr:last-child td { border-bottom:none; }
+.participant-table tr:hover td { background:var(--bg); }
+.badge { display:inline-block; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; }
+.badge-active { background:#87bd36; color:white; }
+.badge-inactive { background:#ef7d05; color:white; }
+.badge-pending { background:#0066aa; color:white; }
+.filter-btn { padding:6px 12px; border-radius:20px; border:1.5px solid var(--border); background:white; font-size:12px; font-weight:600; color:var(--subtitle); cursor:pointer; transition:all 0.15s; font-family:'Montserrat',sans-serif; }
+.filter-btn:hover { border-color: var(--green); color: var(--green); }
+.filter-btn.active { background:var(--light-green-bg); border-color:var(--green); color:var(--green-text); }
+.filter-count { font-weight:400; opacity:0.7; }
+
+/* ── SHARED INPUTS ── */
+.input-field { width:100%; border:1.5px solid var(--border); border-radius:10px; padding:13px 16px; font-family:'Montserrat',sans-serif; font-size:14px; color:var(--title); outline:none; margin-bottom:12px; transition:border-color 0.2s; }
+.input-field:focus { border-color:var(--green); }
+.btn-primary { width:100%; background:var(--green); color:white; border:none; border-radius:10px; padding:14px; font-family:'Montserrat',sans-serif; font-size:14px; font-weight:700; cursor:pointer; transition:background 0.2s; }
+.btn-primary:hover { background:var(--green-dark); }
+.btn-green { background:var(--green); color:white; border:none; border-radius:10px; padding:0 20px; font-family:'Montserrat',sans-serif; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; height:48px; }
+.btn-green:hover { background:var(--green-dark); }
+.btn-danger { background:#FEF2F2; color:#DC2626; border:none; border-radius:10px; padding:10px 20px; font-family:'Montserrat',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
+.btn-danger:hover { background:#FEE2E2; }
+.back-bar { display:flex; justify-content:flex-start; padding-top:24px; margin-top:8px; border-top:1px solid var(--border); }
+.btn-back { display:inline-flex; align-items:center; gap:8px; background:none; border:1.5px solid var(--border); border-radius:10px; padding:10px 18px; font-family:'Montserrat',sans-serif; font-size:13px; font-weight:600; color:var(--subtitle); cursor:pointer; transition:all 0.15s; }
+.btn-back:hover { border-color:var(--green); color:var(--green); }
+
+/* ── LOGIN ── */
+#screen-login.active {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #F0FDF4 0%, #FAFAFA 100%);
+}
+.login-box { width:420px; background:white; border-radius:24px; padding:48px 40px; box-shadow:0 8px 40px rgba(0,0,0,0.10); }
+.login-logo { font-family:'Comfortaa',cursive; font-size:28px; font-weight:700; color:var(--green); margin-bottom:6px; display:flex; align-items:center; gap:10px; }
+.login-tagline { font-size:14px; color:var(--subtitle); line-height:1.6; margin-bottom:36px; }
+.login-box h2 { font-family:'Comfortaa',cursive; font-size:20px; color:var(--title); margin-bottom:6px; }
+.login-box p { font-size:13px; color:var(--subtitle); line-height:1.6; margin-bottom:20px; }
+.login-success { display:none; text-align:center; padding:10px 0; }
+.check-circle { width:60px; height:60px; background:var(--light-green-bg); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
+.login-success h3 { font-family:'Comfortaa',cursive; font-size:20px; color:var(--title); margin-bottom:8px; }
+.login-success p { font-size:13px; color:var(--subtitle); }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — MOBILE
+══════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  /* Nav */
+  .topnav { padding: 0 16px; }
+  .nav-links { display: none; }
+  .mobile-nav { display: block; }
+  .nav-user-name { display: none; }
+  .nav-logo { font-size: 16px; }
+
+  /* Page */
+  .page-wrap { padding: 20px 16px 48px; }
+
+  /* Hero */
+  .hero-banner { flex-direction: column; align-items: flex-start; gap: 16px; padding: 22px 20px; }
+  .hero-greeting { font-size: 20px; }
+  .hero-streak { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-radius: 12px; }
+  .streak-number { font-size: 32px; }
+  .streak-label-top { margin-bottom: 0; }
+  .streak-label-bot { margin-top: 0; }
+
+  /* Grids → single column */
+  .two-col { grid-template-columns: 1fr !important; }
+  #checkin-card { order: -1; }
+  .year-row { grid-template-columns: 1fr !important; }
+
+  /* Growth card: smaller tree on mobile */
+  .tree-display { width: 220px; height: 220px; margin: 0 auto; }
+
+  /* Week grid: 9 columns = 6 rows, bigger dots */
+  .week-grid { grid-template-columns: repeat(9, 1fr); gap: 6px; }
+  .week-dot { font-size: 9px; }
+
+  /* Check-in buttons: stack vertically on very small screens */
+  .checkin-buttons { gap: 10px; }
+
+  /* History card: same card style */
+  .history-card { margin-top: 0; }
+
+  /* Year stats */
+  .year-stats { gap: 16px; }
+
+  /* Community */
+  .comm-avatar { width: 36px; height: 36px; font-size: 12px; }
+
+  /* Profile stats */
+  .profile-stats { grid-template-columns: 1fr 1fr; }
+
+  /* Admin stat row */
+  .stat-row { grid-template-columns: 1fr; gap: 10px; }
+
+  /* Admin table: hide less important columns */
+  .participant-table th:nth-child(2),
+  .participant-table td:nth-child(2) { display: none; }
+  .participant-table th:nth-child(4),
+  .participant-table td:nth-child(4) { display: none; }
+
+  /* Login */
+  .login-box { width: 100%; border-radius: 0; padding: 40px 24px; box-shadow: none; }
+  #screen-login { align-items: flex-start; }
+
+  /* Retro popover: full width at bottom */
+  .retro-popover { left: 16px !important; right: 16px !important; width: auto !important; min-width: unset; }
+}
+</style>
+</head>
+<body>
+
+<!-- SVG TREE DEFINITIONS -->
+<svg style="display:none" id="tree-defs">
+  <!-- Zaadje ontkiemend -->
+  <symbol id="tree-zaad" viewBox="0 0 36 36">
+    <g transform="matrix(1,0,0,1,1,3)"><path d="M14,14C14,14 16.333,16.5 17,18C17.667,19.5 18,23 18,23" style="fill:rgb(117,15,0);fill-opacity:0;stroke:rgb(44,149,9);stroke-width:0.5px;"/></g>
+    <g transform="matrix(1,0,0,1,0.682847,0)">
+      <g transform="matrix(0.828812,0.086689,-0.104027,0.994575,4.120083,-0.62792)"><ellipse cx="20.5" cy="27.5" rx="4.5" ry="5.5" style="fill:rgb(117,15,0);stroke:rgb(149,9,9);stroke-width:0.54px;"/></g>
+      <g transform="matrix(0.855184,-0.46904,0.480887,0.876783,-5.065146,9.130299)"><ellipse cx="13.5" cy="14.5" rx="1.5" ry="2.5" style="fill:rgb(44,149,9);stroke:rgb(44,149,9);stroke-width:0.51px;"/></g>
+    </g>
+  </symbol>
+  <!-- Jonge spruit -->
+  <symbol id="tree-spruit" viewBox="0 0 36 36" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+    <g transform="matrix(1,0,0,1,0.684377,0)">
+      <path d="M16.496,33.937C16.531,34.211 16.337,34.461 16.063,34.496C15.789,34.531 15.539,34.337 15.504,34.063C15.504,34.063 14.899,29.187 15.517,26.871C16.194,24.332 19.572,18.741 19.572,18.741C19.715,18.505 20.023,18.429 20.259,18.572C20.495,18.715 20.571,19.023 20.428,19.259C20.428,19.259 17.139,24.668 16.483,27.129C15.898,29.322 16.496,33.937 16.496,33.937Z" style="fill:rgb(44,149,9);"/>
+      <g transform="matrix(1.460295,-0.283413,0.198977,1.025235,2.820584,3.049396)"><ellipse cx="9" cy="15.5" rx="1" ry="2.5" style="fill:rgb(44,149,9);stroke:rgb(44,149,9);stroke-width:0.39px;"/></g>
+      <g transform="matrix(0.234752,0.972055,-0.972055,0.234752,32.954092,10.951012)"><ellipse cx="9" cy="15.5" rx="1" ry="2.5" style="fill:rgb(44,149,9);stroke:rgb(44,149,9);stroke-width:0.5px;"/></g>
+      <g transform="matrix(-0.146527,0.989207,-0.989207,-0.146527,31.318597,17.841957)"><ellipse cx="9" cy="15.5" rx="1" ry="2.5" style="fill:rgb(44,149,9);stroke:rgb(44,149,9);stroke-width:0.5px;"/></g>
+    </g>
+  </symbol>
+  <!-- Jonge spruit afgevallen blaadje -->
+  <symbol id="tree-spruit-min" viewBox="0 0 36 36" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+    <g transform="matrix(1,0,0,1,0.684377,0)">
+      <path d="M16.496,33.937C16.531,34.211 16.337,34.461 16.063,34.496C15.789,34.531 15.539,34.337 15.504,34.063C15.504,34.063 14.899,29.187 15.517,26.871C16.194,24.332 19.572,18.741 19.572,18.741C19.715,18.505 20.023,18.429 20.259,18.572C20.495,18.715 20.571,19.023 20.428,19.259C20.428,19.259 17.139,24.668 16.483,27.129C15.898,29.322 16.496,33.937 16.496,33.937Z" style="fill:rgb(44,149,9);"/>
+      <g transform="matrix(1.460295,-0.283413,0.198977,1.025235,2.820584,3.049396)"><ellipse cx="9" cy="15.5" rx="1" ry="2.5" style="fill:rgb(44,149,9);stroke:rgb(44,149,9);stroke-width:0.39px;"/></g>
+      <g transform="matrix(0.234752,0.972055,-0.972055,0.234752,32.954092,10.951012)"><ellipse cx="9" cy="15.5" rx="1" ry="2.5" style="fill:rgb(44,149,9);stroke:rgb(44,149,9);stroke-width:0.5px;"/></g>
+      <g transform="matrix(-0.024796,0.999693,-0.999693,-0.024796,27.385545,24.860745)"><ellipse cx="9" cy="15.5" rx="1" ry="2.5" style="fill:rgb(27,110,0);stroke:rgb(30,115,2);stroke-width:0.5px;"/></g>
+    </g>
+  </symbol>
+  <!-- Jonge boom -->
+  <symbol id="tree-jong" viewBox="0 0 36 36" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+    <g transform="matrix(1.121346,0,0,1.121346,-0.972294,-4.004402)">
+      <path d="M17,33L17,23" style="fill:none;stroke:rgb(78,11,29);stroke-width:1.34px;"/>
+      <g transform="matrix(1.25,0,0,1.25,4.25,-1.5)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,115,2);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,7.829274,-1.667569)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,8.164813,-3.933153)"><circle cx="9" cy="20" r="2" style="fill:rgb(39,124,11);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,7.706404,-5.76839)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,5.767539,-4.750752)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,3.173632,-4.221988)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,5.033724,-5.98186)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,6.152385,-0.818701)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+    </g>
+  </symbol>
+  <!-- Jonge boom met droge tak -->
+  <symbol id="tree-jong-min" viewBox="0 0 36 36" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+    <g transform="matrix(1.121346,0,0,1.121346,-0.972294,-4.004402)">
+      <path d="M17,33L17,23" style="fill:none;stroke:rgb(78,11,29);stroke-width:1.34px;"/>
+      <g transform="matrix(1.25,0,0,1.25,4.25,-1.5)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,115,2);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,7.829274,-1.667569)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,8.164813,-3.933153)"><circle cx="9" cy="20" r="2" style="fill:rgb(39,124,11);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,7.706404,-5.76839)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,5.767539,-4.750752)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,3.173632,-4.221988)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,5.033724,-5.98186)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,6.152385,-0.818701)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(0.948756,-0.316009,0.316009,0.948756,-7.796913,3.000956)"><path d="M15.966,30.277C16.107,29.981 16.104,29.321 16.104,29.321C16.104,29.321 15.267,28.534 15.224,28.041C15.182,27.547 15.85,26.359 15.85,26.359L16.108,25.675" style="fill-opacity:0;stroke:rgb(78,11,29);stroke-width:0.45px;"/></g>
+      <g transform="matrix(-0.722751,-0.55437,0.270433,-0.352573,20.341399,42.301954)"><path d="M16.108,30.325L15.216,28.038L16.108,25.675" style="fill-opacity:0;stroke:rgb(78,11,29);stroke-width:0.62px;"/></g>
+    </g>
+  </symbol>
+  <!-- Groeiende boom met droge tak -->
+  <symbol id="tree-groei-min" viewBox="0 0 36 36" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+    <g transform="matrix(1.121346,0,0,1.121346,-0.972294,-4.004402)">
+      <path d="M17,33L17,23" style="fill:none;stroke:rgb(78,11,29);stroke-width:1.78px;"/>
+      <g transform="matrix(1.25,0,0,1.25,4.25,-1.5)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,115,2);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,2.09141,-2.551231)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,115,2);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,6.937489,-0.917149)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,8.977309,-2.405744)"><circle cx="9" cy="20" r="2" style="fill:rgb(39,124,11);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,9.287444,-5.376787)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,5.839177,-7.405744)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,5.767539,-4.750752)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,3.977309,-2.876787)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,2.332969,-5.495406)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,7.829274,-7.405744)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,6.787444,-3.417149)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,3.977309,-6.660754)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+    </g>
+    <g transform="matrix(1.063883,-0.354356,0.354356,1.063883,-9.715328,-0.639294)"><path d="M15.966,30.277C16.107,29.981 16.104,29.321 16.104,29.321C16.104,29.321 15.267,28.534 15.224,28.041C15.182,27.547 15.85,26.359 15.85,26.359L16.585,23.954" style="fill-opacity:0;stroke:rgb(78,11,29);stroke-width:0.45px;"/></g>
+    <g transform="matrix(-0.497714,-0.381761,0.303249,-0.395356,16.799769,39.566669)"><path d="M16.108,30.325L15.216,28.038L16.108,25.675" style="fill-opacity:0;stroke:rgb(78,11,29);stroke-width:0.88px;"/></g>
+    <g transform="matrix(-0.315543,-0.542119,0.430629,-0.250649,15.515045,38.08792)"><path d="M16.108,30.325L15.216,28.038L16.108,25.675" style="fill-opacity:0;stroke:rgb(78,11,29);stroke-width:0.88px;"/></g>
+  </symbol>
+  <!-- Volwassen boom -->
+  <symbol id="tree-volwassen" viewBox="0 0 36 36" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+    <g transform="matrix(1.121346,0,0,1.121346,-0.972294,-4.004402)">
+      <g transform="matrix(1.25,0,0,1.25,2.138501,-9.911321)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,-0.361499,-4.29964)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+      <path d="M17,33L17,23" style="fill:none;stroke:rgb(78,11,29);stroke-width:2.68px;"/>
+      <g transform="matrix(1.25,0,0,1.25,4.377177,-0.608214)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,115,2);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,2.09141,-0.76766)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,115,2);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,6.937489,-0.917149)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,8.977309,-1.79964)"><circle cx="9" cy="20" r="2" style="fill:rgb(39,124,11);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,11.071016,-5.608214)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,11.071016,-4.019535)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,5.839177,-7.405744)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,4.748085,-8.841646)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,5.767539,-4.750752)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,4.287444,-2.250752)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,2.332969,-5.495406)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,0.212095,-6.137299)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,1.107814,-8.601016)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,3.601918,-10.29414)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,0.124686,-2.817368)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,9.377177,-8.127749)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,7.099079,-9.457441)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,3.169222,-4.29964)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,7.138501,-4.019535)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,2.138501,-7.817368)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,6.101918,-6.79964)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+    </g>
+  </symbol>
+  <!-- Boom met vruchten -->
+  <symbol id="tree-vruchten" viewBox="0 0 36 36" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+    <g transform="matrix(1.121346,0,0,1.121346,-0.972294,-4.004402)">
+      <g transform="matrix(1.25,0,0,1.25,2.138501,-9.911321)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,-0.361499,-4.29964)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+      <path d="M17,33L17,23" style="fill:none;stroke:rgb(78,11,29);stroke-width:2.68px;"/>
+      <g transform="matrix(1.25,0,0,1.25,4.377177,-0.608214)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,115,2);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,2.09141,-0.76766)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,115,2);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,6.937489,-0.917149)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,8.977309,-1.79964)"><circle cx="9" cy="20" r="2" style="fill:rgb(39,124,11);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,11.071016,-5.608214)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,11.071016,-4.019535)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,5.839177,-7.405744)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,4.748085,-8.841646)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,5.767539,-4.750752)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,4.287444,-2.250752)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,2.332969,-5.495406)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,0.212095,-6.137299)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,1.107814,-8.601016)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,3.601918,-10.29414)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,0.124686,-2.817368)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,9.377177,-8.127749)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,7.099079,-9.457441)"><circle cx="9" cy="20" r="2" style="fill:rgb(44,149,9);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,3.169222,-4.29964)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,7.138501,-4.019535)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,2.138501,-7.817368)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+      <g transform="matrix(1.25,0,0,1.25,6.101918,-6.79964)"><circle cx="9" cy="20" r="2" style="fill:rgb(30,121,0);"/></g>
+      <!-- vruchten -->
+      <g transform="matrix(0.891786,0,0,0.891786,11.429572,9.81357)"><circle cx="4" cy="6" r="1" style="fill:rgb(195,112,9);"/></g>
+      <g transform="matrix(0.891786,0,0,0.891786,8.622118,14.219588)"><circle cx="4" cy="6" r="1" style="fill:rgb(195,112,9);"/></g>
+      <g transform="matrix(0.891786,0,0,0.891786,8.652148,17.521108)"><circle cx="4" cy="6" r="1" style="fill:rgb(195,112,9);"/></g>
+      <g transform="matrix(0.891786,0,0,0.891786,18.656987,14.604081)"><circle cx="4" cy="6" r="1" style="fill:rgb(195,112,9);"/></g>
+      <g transform="matrix(0.891786,0,0,0.891786,15.392989,11.95786)"><circle cx="4" cy="6" r="1" style="fill:rgb(195,112,9);"/></g>
+      <g transform="matrix(0.891786,0,0,0.891786,15.495771,16.718162)"><circle cx="4" cy="6" r="1" style="fill:rgb(195,112,9);"/></g>
+      <g transform="matrix(0.891786,0,0,0.891786,12.315622,14.35955)"><circle cx="4" cy="6" r="1" style="fill:rgb(195,112,9);"/></g>
+      <g transform="matrix(0.891786,0,0,0.891786,8.815868,10.877135)"><circle cx="4" cy="6" r="1" style="fill:rgb(195,112,9);"/></g>
+      <g transform="matrix(0.891786,0,0,0.891786,12.073431,18.683701)"><circle cx="4" cy="6" r="1" style="fill:rgb(195,112,9);"/></g>
+    </g>
+  </symbol>
+</svg>
+
+<!-- ════════ LOGIN ════════ -->
+<div class="screen" id="screen-login">
+  <div class="login-box">
+    <div class="login-logo">🌳 ReviewTree</div>
+    <div class="login-tagline">Grow week by week.<br>Watch your progress bloom.</div>
+    <div id="login-form-area">
+      <h2>Log in</h2>
+      <p>Enter your email address. You'll receive a magic link to log in — no password needed.</p>
+      <input class="input-field" type="email" placeholder="your@email.com" id="login-email" value="jaap@by-jaap.nl">
+      <button class="btn-primary" id="btn-magic-link">Send magic link →</button>
+      <div style="margin-top:16px; text-align:center;">
+        <button id="btn-demo-link" style="background:none;border:none;font-size:13px;color:var(--green);font-weight:700;cursor:pointer;font-family:inherit;padding:0;">or view the demo →</button>
+      </div>
+    </div>
+    <div class="login-success" id="login-success">
+      <div class="check-circle">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-9" stroke="#3A7D44" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h3>Check your inbox!</h3>
+      <p style="margin-bottom:20px;">We've sent a magic link to <strong id="sent-email"></strong>.</p>
+      <button class="btn-primary" id="btn-demo-after">View dashboard demo →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ DASHBOARD ════════ -->
+<div class="screen active" id="screen-dashboard">
+  <nav class="topnav">
+    <div class="nav-logo" data-goto="dashboard">🌳 ReviewTree</div>
+    <div class="nav-links">
+      <button class="nav-link active" data-goto="dashboard">Dashboard</button>
+      <button class="nav-link" data-goto="admin">Admin (RCN)</button>
+    </div>
+    <div class="nav-user" data-goto="profile">
+      <div class="avatar-sm">J</div>
+      <span class="nav-user-name">Jaap Veenstra</span>
+    </div>
+  </nav>
+  <div class="mobile-nav"><div class="mobile-nav-inner">
+    <button class="mobile-nav-link active" data-goto="dashboard">Dashboard</button>
+    <button class="mobile-nav-link" data-goto="admin">Admin (RCN)</button>
+  </div></div>
+
+  <div class="page-wrap">
+    <!-- Hero banner -->
+    <div class="hero-banner">
+      <div class="hero-left">
+        <div class="hero-greeting">Good morning, Jaap! 👋</div>
+        <div class="hero-sub">Week 24 · June 12, 2026 · Ready for your weekly review?</div>
+        <div class="hero-social">
+          <span>96 participants already did a review this week.</span>
+          <strong>You too! 🎉</strong>
+        </div>
+      </div>
+      <div class="hero-streak">
+        <div class="streak-label-top">Your streak</div>
+        <div class="streak-number">14</div>
+        <div class="streak-label-bot">weeks 🔥</div>
+      </div>
+    </div>
+
+    <!-- Two-col: growth + check-in -->
+    <div class="two-col" style="grid-template-columns: 30fr 70fr">
+      <!-- Your growth -->
+      <div class="card">
+        <div class="card-title">🌿 Your growth</div>
+        <div class="card-sub" style="color:var(--green-text);font-weight:600">Your tree is growing strong — keep it up! 💪</div>
+        <div class="growth-inner">
+          <div class="tree-display">
+            <svg viewBox="0 0 36 36" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+              <use href="#tree-jong"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly check-in -->
+      <div class="card" id="checkin-card" style="display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+          <div>
+            <div class="card-title">✨ Weekly check-in: week 24</div>
+            <div class="card-sub" id="checkin-sub">How was your weekly review?</div>
+          </div>
+          <div style="position:relative;flex-shrink:0">
+            <button class="legend-info-btn" onclick="toggleCheckinInfo(event)" title="What do these options mean?">ℹ</button>
+            <div id="checkin-info-tooltip" class="legend-tooltip" style="min-width:220px;flex-direction:column;gap:8px;right:0;top:34px">
+              <div style="font-weight:700;font-size:13px;margin-bottom:2px">Check-in options</div>
+              <div style="font-size:12px;line-height:1.5"><strong style="color:#87bd36">Done</strong> — you completed your weekly review. Your streak continues.</div>
+              <div style="font-size:12px;line-height:1.5"><strong style="color:var(--orange)">Skipped</strong> — you intentionally chose to skip this week. Your streak pauses.</div>
+              <div style="font-size:12px;line-height:1.5"><strong style="color:var(--blue)">Off time</strong> — you were on holiday or took time off. Your streak is frozen.</div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1"></div>
+        <div class="checkin-buttons" id="checkin-buttons">
+          <button class="checkin-btn gedaan" onclick="doCheckin('gedaan')">
+            <div class="btn-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M4 12l6 6L20 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="btn-title">Done</div>
+          </button>
+          <button class="checkin-btn overgeslagen" onclick="doCheckin('overgeslagen')">
+            <div class="btn-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="6" y="4" width="4" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1.5" fill="currentColor"/></svg>
+            </div>
+            <div class="btn-title">Skipped</div>
+          </button>
+          <button class="checkin-btn vakantie" onclick="doCheckin('vakantie')">
+            <div class="btn-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2.2"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div class="btn-title">Off time</div>
+          </button>
+        </div>
+        <div class="checkin-done" id="checkin-done" style="display:none">
+          <div class="done-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-9" stroke="#3A7D44" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div id="checkin-done-text">You've already checked in this week!</div>
+          <div class="next-week">See you next week 👋</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Year overview + history timeline -->
+    <div class="year-row">
+      <div class="card" style="margin:0;display:flex;flex-direction:column;">
+        <div class="year-header" style="display:flex;align-items:center;justify-content:space-between;">
+          <div class="card-title">📅 Your year — 2026</div>
+          <div class="legend-info-wrap">
+            <button class="legend-info-btn" id="legend-btn" aria-label="Legend" onclick="toggleLegend(event)">ℹ</button>
+            <div class="legend-tooltip" id="legend-tooltip">
+              <div class="legend-item"><div class="legend-dot" style="background:var(--lime)"></div>Done</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Off time</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Skipped</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--border)"></div>Not yet</div>
+            </div>
+          </div>
+        </div>
+        <div class="year-stats">
+          <div>
+            <div class="year-stat-num">23</div>
+            <div class="year-stat-label">Total done</div>
+          </div>
+          <div>
+            <div class="year-stat-num orange">1</div>
+            <div class="year-stat-label">Skipped</div>
+          </div>
+        </div>
+        <div class="week-grid" id="week-grid"></div>
+        <div class="year-foot">24 van 52 weken ingecheckt</div>
+
+        <!-- Retroactief check-in popover -->
+        <div class="retro-popover" id="retro-popover">
+          <div class="retro-title" id="retro-title">Fill in week <span id="retro-week-num"></span> retroactively</div>
+          <div class="retro-sub">You can go back up to 6 weeks.</div>
+          <div class="retro-buttons">
+            <button class="retro-btn gedaan" onclick="doRetro('gedaan')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 12l6 6L20 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Done</button>
+            <button class="retro-btn overgeslagen" onclick="doRetro('overgeslagen')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="6" y="4" width="4" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1.5" fill="currentColor"/></svg> Skipped</button>
+            <button class="retro-btn vakantie" onclick="doRetro('vakantie')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2.2"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Off time</button>
+          </div>
+          <button class="retro-close" onclick="closeRetro()">✕</button>
+        </div>
+      </div>
+
+      <!-- History timeline -->
+      <div class="history-card">
+        <div class="card-title">🕰️ Previous years</div>
+        <div class="card-sub">How your tree grew</div>
+        <div class="tl-list">
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-year">2025</div>
+            <div class="tl-tree-name">Mature tree</div>
+            <div class="tl-detail">47 of 52 weeks<br>Longest streak: 38 🔥</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-year">2024</div>
+            <div class="tl-tree-name">Tree with fruits</div>
+            <div class="tl-detail">41 of 52 weeks<br>Longest streak: 22 🔥</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot orange"></div>
+            <div class="tl-year">2023</div>
+            <div class="tl-tree-name">Young tree</div>
+            <div class="tl-detail">18 of 52 weeks<br>Longest streak: 12 🔥</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Community -->
+    <div class="card full-col">
+      <div class="card-title" style="margin-bottom:4px">Community — week 24</div>
+      <div class="card-sub">See how others are growing</div>
+      <div class="community-list">
+        <div class="community-item">
+          <div class="comm-avatar" style="background:#87bd36;color:white">MV</div>
+          <div class="comm-info">
+            <div class="comm-name">Mirjam V.</div>
+          </div>
+          <div class="comm-right done"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 12l6 6L20 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Done</div>
+        </div>
+        <div class="community-item">
+          <div class="comm-avatar" style="background:#87bd36;color:white">SB</div>
+          <div class="comm-info">
+            <div class="comm-name">Sophie van den Berg</div>
+          </div>
+          <div class="comm-right done"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 12l6 6L20 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Done</div>
+        </div>
+        <div class="community-item">
+          <div class="comm-avatar" style="background:#ef7d05;color:white">RL</div>
+          <div class="comm-info">
+            <div class="comm-name">Rosa L.</div>
+          </div>
+          <div class="comm-right skipped"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="6" y="4" width="4" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1.5" fill="currentColor"/></svg> Skipped</div>
+        </div>
+        <div class="community-item">
+          <div class="comm-avatar" style="background:#0066aa;color:white">KD</div>
+          <div class="comm-info">
+            <div class="comm-name">Karin D.</div>
+          </div>
+          <div class="comm-right vacation"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2.2"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Off time</div>
+        </div>
+        <div class="community-item">
+          <div class="comm-avatar" style="background:#87bd36;color:white">PH</div>
+          <div class="comm-info">
+            <div class="comm-name">Peter H.</div>
+          </div>
+          <div class="comm-right done"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 12l6 6L20 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Done</div>
+        </div>
+        <div class="community-item">
+          <div class="comm-avatar" style="background:#87bd36;color:white">SV</div>
+          <div class="comm-info">
+            <div class="comm-name">Sophie V.</div>
+          </div>
+          <div class="comm-right done"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 12l6 6L20 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Done</div>
+        </div>
+        <div class="community-item">
+          <div class="comm-avatar" style="background:#0066aa;color:white">TK</div>
+          <div class="comm-info">
+            <div class="comm-name">Tom K.</div>
+          </div>
+          <div class="comm-right vacation"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2.2"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Off time</div>
+        </div>
+        <div class="community-item">
+          <div class="comm-avatar" style="background:#87bd36;color:white">LM</div>
+          <div class="comm-info">
+            <div class="comm-name">Lisa M.</div>
+          </div>
+          <div class="comm-right done"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 12l6 6L20 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Done</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ CHECK-IN ════════ -->
+<div class="screen" id="screen-checkin">
+  <nav class="topnav">
+    <div class="nav-logo" data-goto="dashboard">🌳 ReviewTree</div>
+    <div class="nav-links">
+      <button class="nav-link" data-goto="dashboard">Dashboard</button>
+      <button class="nav-link active" data-goto="checkin">Check-in</button>
+      <button class="nav-link" data-goto="admin">Admin (RCN)</button>
+    </div>
+    <div class="nav-user" data-goto="profile">
+      <div class="avatar-sm">J</div>
+      <span class="nav-user-name">Jaap Veenstra</span>
+    </div>
+  </nav>
+  <div class="mobile-nav"><div class="mobile-nav-inner">
+    <button class="mobile-nav-link active" data-goto="dashboard">Dashboard</button>
+    <button class="mobile-nav-link" data-goto="admin">Admin (RCN)</button>
+  </div></div>
+  <div class="page-wrap">
+    <div style="margin-bottom:28px">
+      <div style="font-family:'Comfortaa',cursive;font-size:22px;font-weight:700;color:var(--title);margin-bottom:4px">Weekly check-in</div>
+      <div style="font-size:14px;color:var(--subtitle)">Week 25 · June 15–21, 2026 · You haven't checked in yet</div>
+    </div>
+
+    <div class="two-col" style="align-items:start">
+      <!-- Jouw boom -->
+      <div class="card">
+        <div class="card-title">🌿 Your tree</div>
+        <div class="card-sub">Phase 3 · Young tree · 14 weeks</div>
+        <div style="display:flex;align-items:center;gap:20px;margin-bottom:16px">
+          <div class="tree-display">
+            <svg viewBox="0 0 36 36" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+              <use href="#tree-jong"/>
+            </svg>
+          </div>
+          <div style="flex:1">
+            <div class="progress-bar"><div class="progress-fill" style="width:55%"></div></div>
+            <div class="progress-label" style="margin-top:6px">12 more weeks to phase 4</div>
+          </div>
+        </div>
+        <div style="padding:10px 14px;background:#FFFBEB;border-radius:10px;font-size:12px;color:#92400E;">
+          ⏰ You can still catch up to 5 weeks back (week 20).
+        </div>
+      </div>
+
+      <!-- Knoppen -->
+      <div class="card">
+        <div class="card-title">How was your week?</div>
+        <div class="card-sub">Week 25 · June 15–21, 2026</div>
+        <div class="checkin-buttons">
+          <button class="checkin-btn gedaan" onclick="doCheckin('gedaan')">
+            <div class="btn-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M4 12l6 6L20 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="btn-title">Done</div>
+          </button>
+          <button class="checkin-btn overgeslagen" onclick="doCheckin('overgeslagen')">
+            <div class="btn-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="6" y="4" width="4" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1.5" fill="currentColor"/></svg>
+            </div>
+            <div class="btn-title">Skipped</div>
+          </button>
+          <button class="checkin-btn vakantie" onclick="doCheckin('vakantie')">
+            <div class="btn-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2.2"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div class="btn-title">Off time</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ PROFILE ════════ -->
+<div class="screen" id="screen-profile">
+  <nav class="topnav">
+    <div class="nav-logo" data-goto="dashboard">🌳 ReviewTree</div>
+    <div class="nav-links">
+      <button class="nav-link" data-goto="dashboard">Dashboard</button>
+      <button class="nav-link" data-goto="admin">Admin (RCN)</button>
+    </div>
+    <div class="nav-user" data-goto="profile">
+      <div class="avatar-sm">J</div>
+      <span class="nav-user-name">Jaap Veenstra</span>
+    </div>
+  </nav>
+  <div class="mobile-nav"><div class="mobile-nav-inner">
+    <button class="mobile-nav-link active" data-goto="dashboard">Dashboard</button>
+    <button class="mobile-nav-link" data-goto="admin">Admin (RCN)</button>
+  </div></div>
+  <div class="page-wrap">
+    <div style="margin-bottom:28px;font-family:'Comfortaa',cursive;font-size:22px;font-weight:700;color:var(--title)">Profile</div>
+    <div class="card" style="max-width:600px">
+      <div class="profile-hero">
+        <div class="avatar-lg">J</div>
+        <div>
+          <div style="font-family:'Comfortaa',cursive;font-size:20px;font-weight:700">Jaap Veenstra</div>
+          <div style="font-size:13px;color:var(--subtitle);margin-top:4px">jaap@by-jaap.nl</div>
+          <div style="margin-top:8px"><span class="badge badge-active">Active</span></div>
+        </div>
+      </div>
+      <div class="profile-stats">
+        <div class="profile-stat">
+          <div class="profile-stat-num">52</div>
+          <div class="profile-stat-label">Current streak</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-num" style="color:var(--orange)">52</div>
+          <div class="profile-stat-label">Longest streak</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-num" style="font-size:22px">🌳</div>
+          <div class="profile-stat-label">Fruits (phase 6)</div>
+        </div>
+      </div>
+      <div class="settings-section-label" style="margin-top:8px">Growth history</div>
+      <div class="profile-history">
+        <div class="ph-item">
+          <div class="ph-year-col">
+            <div class="ph-dot"></div>
+            <div class="ph-line"></div>
+          </div>
+          <div class="ph-content">
+            <div class="ph-year">2026 <span class="ph-badge current">In progress</span></div>
+            <div class="ph-tree">🌿 Young tree</div>
+            <div class="ph-detail">24 of 53 weeks · Streak: 14 🔥</div>
+          </div>
+        </div>
+        <div class="ph-item">
+          <div class="ph-year-col">
+            <div class="ph-dot"></div>
+            <div class="ph-line"></div>
+          </div>
+          <div class="ph-content">
+            <div class="ph-year">2025</div>
+            <div class="ph-tree">🌳 Mature tree</div>
+            <div class="ph-detail">47 of 52 weeks · Longest streak: 38 🔥</div>
+          </div>
+        </div>
+        <div class="ph-item">
+          <div class="ph-year-col">
+            <div class="ph-dot"></div>
+            <div class="ph-line"></div>
+          </div>
+          <div class="ph-content">
+            <div class="ph-year">2024</div>
+            <div class="ph-tree">🌲 Tree with fruits</div>
+            <div class="ph-detail">41 of 52 weeks · Longest streak: 22 🔥</div>
+          </div>
+        </div>
+        <div class="ph-item">
+          <div class="ph-year-col">
+            <div class="ph-dot orange"></div>
+            <div class="ph-line"></div>
+          </div>
+          <div class="ph-content">
+            <div class="ph-year">2023</div>
+            <div class="ph-tree">🌿 Young tree</div>
+            <div class="ph-detail">18 of 52 weeks · Longest streak: 12 🔥</div>
+          </div>
+        </div>
+        <div class="ph-item">
+          <div class="ph-year-col">
+            <div class="ph-dot orange"></div>
+            <div class="ph-line"></div>
+          </div>
+          <div class="ph-content">
+            <div class="ph-year">2022</div>
+            <div class="ph-tree">🌱 Sprout</div>
+            <div class="ph-detail">9 of 52 weeks · Longest streak: 6 🔥</div>
+          </div>
+        </div>
+        <div class="ph-item last">
+          <div class="ph-year-col">
+            <div class="ph-dot orange"></div>
+          </div>
+          <div class="ph-content">
+            <div class="ph-year">2021 <span class="ph-badge start">Start</span></div>
+            <div class="ph-tree">🌰 Seed</div>
+            <div class="ph-detail">3 of 52 weeks · First steps taken</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section-label">Reminders</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Email reminder</div>
+          <div class="settings-value">Receive a weekly reminder to check in</div>
+        </div>
+        <div class="toggle"></div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Reminder day</div>
+          <div class="settings-value">On which day do you want your reminder?</div>
+        </div>
+        <select class="select-field">
+          <option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Reminder time</div>
+          <div class="settings-value">At what time do you want your reminder?</div>
+        </div>
+        <select class="select-field">
+          <option>07:00</option><option>08:00</option><option>09:00</option><option selected>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option>
+        </select>
+      </div>
+      <div class="settings-section-label">Account</div>
+      <div class="settings-row">
+        <div class="settings-label">Change name</div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="color:var(--grey)"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="settings-row" style="padding-bottom:0;border-bottom:none">
+        <div></div>
+        <button class="btn-danger" data-goto="login">Log out</button>
+      </div>
+    </div>
+    <div class="back-bar">
+      <button class="btn-back" data-goto="dashboard">← Back to dashboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ ADMIN ════════ -->
+<div class="screen" id="screen-admin">
+  <nav class="topnav">
+    <div class="nav-logo" data-goto="dashboard">🌳 ReviewTree</div>
+    <div class="nav-links">
+      <button class="nav-link" data-goto="dashboard">Dashboard</button>
+      <button class="nav-link active" data-goto="admin">Admin (RCN)</button>
+    </div>
+    <div class="nav-user" data-goto="profile">
+      <div class="avatar-sm">J</div>
+      <span class="nav-user-name">Jaap Veenstra</span>
+    </div>
+  </nav>
+  <div class="mobile-nav"><div class="mobile-nav-inner">
+    <button class="mobile-nav-link" data-goto="dashboard">Dashboard</button>
+    <button class="mobile-nav-link active" data-goto="admin">Admin (RCN)</button>
+  </div></div>
+  <div class="page-wrap">
+    <div style="margin-bottom:6px;font-family:'Comfortaa',cursive;font-size:22px;font-weight:700;color:var(--title)">Admin — RCN Advies & Training</div>
+    <div style="font-size:14px;color:var(--subtitle);margin-bottom:28px">Manage participants and invitations</div>
+
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-number">18</div><div class="stat-label">Active participants</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:var(--orange)">3</div><div class="stat-label">Open invitations</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:#DC2626">2</div><div class="stat-label">Inactive (>4 wks)</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title" style="margin-bottom:4px">Invite new participant</div>
+      <div class="card-sub">The participant will receive an email with an invitation link</div>
+      <div class="invite-row">
+        <input class="input-field" type="email" placeholder="name@email.com" id="invite-email">
+        <input class="input-field" type="text" placeholder="Name (optional)" id="invite-name" style="max-width:200px">
+        <button class="btn-green" onclick="doInvite()">Invite</button>
+      </div>
+      <div id="invite-feedback" style="font-size:13px;color:var(--green-text);margin-top:10px;display:none"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+        <div>
+          <div class="card-title" style="margin-bottom:2px">Participants</div>
+          <div class="card-sub" id="participant-count">All participants and their progress</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="participant-filters">
+          <button class="filter-btn active" onclick="filterParticipants('all', this)">All <span class="filter-count">7</span></button>
+          <button class="filter-btn" onclick="filterParticipants('active', this)">Active <span class="filter-count">5</span></button>
+          <button class="filter-btn" onclick="filterParticipants('invited', this)">Invited <span class="filter-count">1</span></button>
+          <button class="filter-btn" onclick="filterParticipants('inactive', this)">Inactive <span class="filter-count">1</span></button>
+        </div>
+      </div>
+      <table class="participant-table" id="participant-table">
+        <thead><tr><th>Name</th><th>Phase</th><th>Streak</th><th>Last check-in</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><div style="font-weight:700">Sophie van den Berg</div><div style="font-size:12px;color:var(--subtitle)">sophie@example.nl</div></td><td>🌳 Fruits</td><td style="font-weight:700;color:var(--orange)">🔥 48 wks</td><td style="color:var(--subtitle);font-size:13px">Week 24 (today)</td><td><span class="badge badge-active">Active</span></td></tr>
+          <tr><td><div style="font-weight:700">Mark Jansen</div><div style="font-size:12px;color:var(--subtitle)">mark@example.nl</div></td><td>🌲 Mature tree</td><td style="font-weight:700;color:var(--orange)">🔥 41 wks</td><td style="color:var(--subtitle);font-size:13px">Week 24 (today)</td><td><span class="badge badge-active">Active</span></td></tr>
+          <tr><td><div style="font-weight:700">Lisa Bakker</div><div style="font-size:12px;color:var(--subtitle)">lisa@example.nl</div></td><td>🌴 Growing tree</td><td style="font-weight:700;color:var(--orange)">🔥 28 wks</td><td style="color:var(--subtitle);font-size:13px">Week 23 (yesterday)</td><td><span class="badge badge-active">Active</span></td></tr>
+          <tr><td><div style="font-weight:700">Thomas Smit</div><div style="font-size:12px;color:var(--subtitle)">thomas@example.nl</div></td><td>🌿 Young tree</td><td style="font-weight:700;color:var(--orange)">🔥 15 wks</td><td style="color:var(--subtitle);font-size:13px">Week 23 (yesterday)</td><td><span class="badge badge-active">Active</span></td></tr>
+          <tr><td><div style="font-weight:700">Roos Willems</div><div style="font-size:12px;color:var(--subtitle)">roos@example.nl</div></td><td>💀 Streak broken</td><td style="color:var(--grey);font-size:13px">—</td><td style="color:#DC2626;font-size:13px">Week 19 (5 wks ago)</td><td><span class="badge badge-inactive">Inactive</span></td></tr>
+          <tr><td><div style="font-weight:700">Anna de Vries</div><div style="font-size:12px;color:var(--subtitle)">anna@example.nl</div></td><td>🌱 Young sprout</td><td style="font-weight:700;color:var(--orange)">🔥 7 wks</td><td style="color:var(--subtitle);font-size:13px">Week 22 (2d ago)</td><td><span class="badge badge-active">Active</span></td></tr>
+          <tr><td><div style="font-weight:700">Kees de Groot</div><div style="font-size:12px;color:var(--subtitle)">kees@example.nl</div></td><td>🌰 Seedling</td><td style="color:var(--grey);font-size:13px">—</td><td style="color:var(--subtitle);font-size:13px">Never</td><td><span class="badge badge-pending">Invited</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="back-bar">
+      <button class="btn-back" data-goto="dashboard">← Back to dashboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var screenMap = { login:'screen-login', dashboard:'screen-dashboard', checkin:'screen-checkin', profile:'screen-profile', admin:'screen-admin' };
+
+  function goTo(key) {
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    var t = document.getElementById(screenMap[key]);
+    if (t) { t.classList.add('active'); window.scrollTo(0,0); }
+  }
+
+  document.addEventListener('click', function(e) {
+    var el = e.target;
+    while (el && el !== document) {
+      if (el.dataset && el.dataset.goto) { goTo(el.dataset.goto); return; }
+      el = el.parentElement;
+    }
+  });
+
+  var btnMagic = document.getElementById('btn-magic-link');
+  if (btnMagic) btnMagic.addEventListener('click', function() {
+    var email = document.getElementById('login-email').value;
+    if (!email) return;
+    document.getElementById('sent-email').textContent = email;
+    document.getElementById('login-form-area').style.display = 'none';
+    document.getElementById('login-success').style.display = 'block';
+  });
+
+  var btnDemo = document.getElementById('btn-demo-link');
+  if (btnDemo) btnDemo.addEventListener('click', function(){ goTo('dashboard'); });
+  var btnDemoAfter = document.getElementById('btn-demo-after');
+  if (btnDemoAfter) btnDemoAfter.addEventListener('click', function(){ goTo('dashboard'); });
+
+  document.querySelectorAll('.checkin-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var status = btn.classList.contains('gedaan') ? 'gedaan' : btn.classList.contains('overgeslagen') ? 'overgeslagen' : 'vakantie';
+      var labels = { gedaan:'Done ✓ — streak continues!', overgeslagen:'Skipped — streak paused.', vakantie:'Off time 🏖️ — streak frozen.' };
+      alert('Check-in saved: "' + labels[status] + '"\n\nIn the real app this will be stored in Supabase and your tree and streak will update immediately.');
+    });
+  });
+
+  var btnInvite = document.querySelector('.btn-green');
+  if (btnInvite) btnInvite.addEventListener('click', doInvite);
+
+  // Bereken aantal ISO-weken in een jaar
+  function isoWeeksInYear(year) {
+    function p(y) { return (y + Math.floor(y/4) - Math.floor(y/100) + Math.floor(y/400)) % 7; }
+    return (p(year) === 4 || p(year - 1) === 3) ? 53 : 52;
+  }
+
+  // Week grid
+  var grid = document.getElementById('week-grid');
+  var currentRetroWeek = null;
+  var retroDotEl = null;
+  var weekStatuses = ['gedaan','gedaan','gedaan','gedaan','vakantie','vakantie','gedaan','gedaan','gedaan','overgeslagen','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','overgeslagen','gedaan','gedaan','gedaan','gedaan','current'];
+
+  if (grid) {
+    var currentYear = new Date().getFullYear();
+    var totalWeeks = isoWeeksInYear(currentYear);
+    var currentWeek = 24; // week 24 = huidige week in prototype
+
+    for (var i = 0; i < totalWeeks; i++) {
+      var dot = document.createElement('div');
+      var status = i < weekStatuses.length ? weekStatuses[i] : 'future';
+      dot.className = 'week-dot ' + status;
+      dot.textContent = i + 1;
+
+      // Make skipped weeks within 6 weeks clickable for retroactive check-in
+      var weekNum = i + 1;
+      var weeksAgo = currentWeek - weekNum;
+      if (status === 'overgeslagen' && weeksAgo >= 1 && weeksAgo <= 6) {
+        dot.classList.add('retro-available');
+        dot.dataset.week = weekNum;
+        dot.addEventListener('click', openRetro);
+      }
+
+      grid.appendChild(dot);
+    }
+
+    var foot = document.querySelector('.year-foot');
+    if (foot) foot.textContent = '24 of ' + totalWeeks + ' weeks checked in';
+  }
+
+  // Sluit popover bij klik buiten
+  document.addEventListener('click', function(e) {
+    var pop = document.getElementById('retro-popover');
+    var tooltip = document.getElementById('legend-tooltip');
+    if (pop && pop.classList.contains('open') && !pop.contains(e.target) && !e.target.dataset.week) {
+      closeRetro();
+    }
+    if (tooltip && tooltip.classList.contains('open') && !document.getElementById('legend-btn').contains(e.target)) {
+      tooltip.classList.remove('open');
+    }
+    var cTooltip = document.getElementById('checkin-info-tooltip');
+    if (cTooltip && cTooltip.classList.contains('open') && !cTooltip.previousElementSibling.contains(e.target)) {
+      cTooltip.classList.remove('open');
+    }
+  });
+});
+
+function filterParticipants(filter, btn) {
+  document.querySelectorAll('#participant-filters .filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  var rows = document.querySelectorAll('#participant-table tbody tr');
+  var shown = 0;
+  rows.forEach(function(row) {
+    var badge = row.querySelector('.badge');
+    if (!badge) return;
+    var cls = badge.className;
+    var match = filter === 'all'
+      || (filter === 'active' && cls.includes('badge-active'))
+      || (filter === 'inactive' && cls.includes('badge-inactive'))
+      || (filter === 'invited' && cls.includes('badge-pending'));
+    row.style.display = match ? '' : 'none';
+    if (match) shown++;
+  });
+  var sub = document.getElementById('participant-count');
+  if (sub) sub.textContent = shown + ' participant' + (shown !== 1 ? 's' : '') + (filter !== 'all' ? ' · ' + filter : '');
+}
+
+function toggleCheckinInfo(e) {
+  e.stopPropagation();
+  document.getElementById('checkin-info-tooltip').classList.toggle('open');
+}
+function toggleLegend(e) {
+  e.stopPropagation();
+  document.getElementById('legend-tooltip').classList.toggle('open');
+}
+
+function openRetro(e) {
+  e.stopPropagation();
+  var dot = e.currentTarget;
+  retroDotEl = dot;
+  currentRetroWeek = parseInt(dot.dataset.week);
+  document.getElementById('retro-week-num').textContent = currentRetroWeek;
+  var pop = document.getElementById('retro-popover');
+  pop.classList.add('open');
+  // Positioneer popover bij de dot (fixed, viewport-coördinaten)
+  var dotRect = dot.getBoundingClientRect();
+  var popWidth = 270;
+  var left = dotRect.left + dotRect.width / 2 - popWidth / 2;
+  left = Math.max(8, Math.min(left, window.innerWidth - popWidth - 8));
+  var top = dotRect.bottom + 10;
+  if (top + 160 > window.innerHeight) top = dotRect.top - 160;
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+}
+
+function closeRetro() {
+  document.getElementById('retro-popover').classList.remove('open');
+  retroDotEl = null;
+  currentRetroWeek = null;
+}
+
+function doRetro(status) {
+  if (!retroDotEl) return;
+  retroDotEl.className = 'week-dot ' + status;
+  closeRetro();
+}
+
+function doInvite() {
+  var email = document.getElementById('invite-email').value;
+  if (!email) return;
+  var name = document.getElementById('invite-name').value;
+  var fb = document.getElementById('invite-feedback');
+  fb.textContent = '✓ Invitation sent to ' + (name ? name + ' (' + email + ')' : email);
+  fb.style.display = 'block';
+  document.getElementById('invite-email').value = '';
+  document.getElementById('invite-name').value = '';
+  setTimeout(function(){ fb.style.display = 'none'; }, 4000);
+}
+
+function doCheckin(status) {
+  var labels = {
+    gedaan: 'Done ✓ — well done!',
+    overgeslagen: 'Skipped this week.',
+    vakantie: 'Off time 🏖️ — streak frozen.'
+  };
+  var btns = document.getElementById('checkin-buttons');
+  var done = document.getElementById('checkin-done');
+  var sub = document.getElementById('checkin-sub');
+  var text = document.getElementById('checkin-done-text');
+  if (btns && done) {
+    btns.style.display = 'none';
+    done.style.display = 'flex';
+    text.textContent = labels[status];
+    sub.textContent = 'Week 24 · checked in';
+  }
+}
+</script>
+</body>
+</html>
