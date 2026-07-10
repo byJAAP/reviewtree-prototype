@@ -878,9 +878,12 @@ body {
             <div class="year-stat-num orange" id="stat-skipped">3</div>
             <div class="year-stat-label">Skipped</div>
           </div>
+          <div>
+            <div class="year-stat-num" style="color:var(--blue)" id="stat-offtime">2</div>
+            <div class="year-stat-label">Off time</div>
+          </div>
         </div>
         <div class="week-grid" id="week-grid"></div>
-        <div class="year-foot">24 van 52 weken ingecheckt</div>
 
         <!-- Retroactief check-in popover -->
         <div class="retro-popover" id="retro-popover">
@@ -1373,15 +1376,15 @@ document.addEventListener('DOMContentLoaded', function() {
       grid.appendChild(dot);
     }
 
-    var foot = document.querySelector('.year-foot');
-    var totalCheckedIn = weekStatuses.filter(function(s) { return s !== 'current'; }).length;
     var doneCount = weekStatuses.filter(function(s) { return s === 'gedaan'; }).length;
     var skippedCount = weekStatuses.filter(function(s) { return s === 'overgeslagen'; }).length;
-    if (foot) foot.textContent = totalCheckedIn + ' of ' + totalWeeks + ' weeks checked in';
+    var offtimeCount = weekStatuses.filter(function(s) { return s === 'vakantie'; }).length;
     var sd = document.getElementById('stat-done');
     if (sd) sd.textContent = doneCount;
     var ss = document.getElementById('stat-skipped');
     if (ss) ss.textContent = skippedCount;
+    var so = document.getElementById('stat-offtime');
+    if (so) so.textContent = offtimeCount;
 
     // Populate dynamic week/year labels
     var now = new Date();
@@ -1497,20 +1500,18 @@ function closeRetro() {
 
 function updateYearStats() {
   var dots = document.querySelectorAll('#week-grid .week-dot');
-  var done = 0, skipped = 0, checkedIn = 0;
-  var totalWeeks = dots.length;
+  var done = 0, skipped = 0, offtime = 0;
   dots.forEach(function(d) {
-    if (d.classList.contains('future') || d.classList.contains('current')) return;
-    checkedIn++;
     if (d.classList.contains('gedaan')) done++;
-    if (d.classList.contains('overgeslagen')) skipped++;
+    else if (d.classList.contains('overgeslagen')) skipped++;
+    else if (d.classList.contains('vakantie')) offtime++;
   });
   var sd = document.getElementById('stat-done');
   if (sd) sd.textContent = done;
   var ss = document.getElementById('stat-skipped');
   if (ss) ss.textContent = skipped;
-  var foot = document.querySelector('.year-foot');
-  if (foot) foot.textContent = checkedIn + ' of ' + totalWeeks + ' weeks checked in';
+  var so = document.getElementById('stat-offtime');
+  if (so) so.textContent = offtime;
 }
 
 function doRetro(status) {
