@@ -321,7 +321,7 @@ body {
 .week-dot.gedaan { background: var(--lime); }
 .week-dot.overgeslagen { background: var(--orange); }
 .week-dot.vakantie { background: var(--blue); }
-.week-dot.current { box-shadow: 0 0 0 2.5px var(--green); background: var(--lime); }
+.week-dot.current { box-shadow: 0 0 0 2.5px var(--lime); background: #f3f4f6; color: var(--subtitle); }
 .week-dot.future { opacity: 0.25; }
 .year-legend { display: flex; gap: 16px; flex-wrap: wrap; }
 .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--subtitle); font-weight: 500; }
@@ -871,11 +871,11 @@ body {
         </div>
         <div class="year-stats">
           <div>
-            <div class="year-stat-num">23</div>
+            <div class="year-stat-num" id="stat-done">22</div>
             <div class="year-stat-label">Total done</div>
           </div>
           <div>
-            <div class="year-stat-num orange">1</div>
+            <div class="year-stat-num orange" id="stat-skipped">3</div>
             <div class="year-stat-label">Skipped</div>
           </div>
         </div>
@@ -1376,7 +1376,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var foot = document.querySelector('.year-foot');
     var checkedIn = weekStatuses.filter(function(s) { return s === 'gedaan'; }).length;
+    var skippedCount = weekStatuses.filter(function(s) { return s === 'overgeslagen'; }).length;
     if (foot) foot.textContent = checkedIn + ' of ' + totalWeeks + ' weeks checked in';
+    var sd = document.getElementById('stat-done');
+    if (sd) sd.textContent = checkedIn;
+    var ss = document.getElementById('stat-skipped');
+    if (ss) ss.textContent = skippedCount;
 
     // Populate dynamic week/year labels
     var now = new Date();
