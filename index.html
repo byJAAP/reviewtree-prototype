@@ -1269,8 +1269,8 @@ body {
       <table class="participant-table" id="participant-table">
         <thead><tr><th>Name</th><th>Phase</th><th>Streak</th><th>Last check-in</th><th>Status</th></tr></thead>
         <tbody>
-          <tr><td><div style="font-weight:700">Sophie van den Berg</div><div style="font-size:12px;color:var(--subtitle)">sophie@example.nl</div></td><td>🌳 Fruits</td><td style="font-weight:700;color:var(--orange)">🔥 48 wks</td><td style="color:var(--subtitle);font-size:13px">Week 24 (today)</td><td><span class="badge badge-active">Active</span></td></tr>
-          <tr><td><div style="font-weight:700">Mark Jansen</div><div style="font-size:12px;color:var(--subtitle)">mark@example.nl</div></td><td>🌲 Mature tree</td><td style="font-weight:700;color:var(--orange)">🔥 41 wks</td><td style="color:var(--subtitle);font-size:13px">Week 24 (today)</td><td><span class="badge badge-active">Active</span></td></tr>
+          <tr><td><div style="font-weight:700">Sophie van den Berg</div><div style="font-size:12px;color:var(--subtitle)">sophie@example.nl</div></td><td>🌳 Fruits</td><td style="font-weight:700;color:var(--orange)">🔥 48 wks</td><td style="color:var(--subtitle);font-size:13px"><span class="admin-current-week">Week 24 (today)</span></td><td><span class="badge badge-active">Active</span></td></tr>
+          <tr><td><div style="font-weight:700">Mark Jansen</div><div style="font-size:12px;color:var(--subtitle)">mark@example.nl</div></td><td>🌲 Mature tree</td><td style="font-weight:700;color:var(--orange)">🔥 41 wks</td><td style="color:var(--subtitle);font-size:13px"><span class="admin-current-week">Week 24 (today)</span></td><td><span class="badge badge-active">Active</span></td></tr>
           <tr><td><div style="font-weight:700">Lisa Bakker</div><div style="font-size:12px;color:var(--subtitle)">lisa@example.nl</div></td><td>🌴 Growing tree</td><td style="font-weight:700;color:var(--orange)">🔥 28 wks</td><td style="color:var(--subtitle);font-size:13px">Week 23 (yesterday)</td><td><span class="badge badge-active">Active</span></td></tr>
           <tr><td><div style="font-weight:700">Thomas Smit</div><div style="font-size:12px;color:var(--subtitle)">thomas@example.nl</div></td><td>🌿 Young tree</td><td style="font-weight:700;color:var(--orange)">🔥 15 wks</td><td style="color:var(--subtitle);font-size:13px">Week 23 (yesterday)</td><td><span class="badge badge-active">Active</span></td></tr>
           <tr><td><div style="font-weight:700">Roos Willems</div><div style="font-size:12px;color:var(--subtitle)">roos@example.nl</div></td><td>💀 Streak broken</td><td style="color:var(--grey);font-size:13px">—</td><td style="color:#DC2626;font-size:13px">Week 19 (5 wks ago)</td><td><span class="badge badge-inactive">Inactive</span></td></tr>
@@ -1338,7 +1338,9 @@ document.addEventListener('DOMContentLoaded', function() {
   var grid = document.getElementById('week-grid');
   var currentRetroWeek = null;
   var retroDotEl = null;
-  var weekStatuses = ['gedaan','gedaan','gedaan','gedaan','vakantie','vakantie','gedaan','gedaan','gedaan','overgeslagen','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','overgeslagen','gedaan','gedaan','gedaan','gedaan','current'];
+  // Prototype check-in history — statuses for weeks 1 through (currentWeek - 1).
+  // 'current' is assigned dynamically in the grid loop based on the real ISO week.
+  var weekStatuses = ['gedaan','gedaan','gedaan','gedaan','vakantie','vakantie','gedaan','gedaan','gedaan','overgeslagen','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','overgeslagen','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','overgeslagen','gedaan'];
 
   // Calculate real ISO week number and year (available globally in this script)
   var currentYear = new Date().getFullYear();
@@ -1356,12 +1358,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     for (var i = 0; i < totalWeeks; i++) {
       var dot = document.createElement('div');
-      var status = i < weekStatuses.length ? weekStatuses[i] : 'future';
+      var weekNum = i + 1;
+      var status = weekNum === currentWeek ? 'current' : (weekNum < currentWeek && i < weekStatuses.length ? weekStatuses[i] : 'future');
       dot.className = 'week-dot ' + status;
       dot.textContent = i + 1;
 
       // Make skipped weeks within 6 weeks clickable for retroactive check-in
-      var weekNum = i + 1;
       var weeksAgo = currentWeek - weekNum;
       if (status === 'overgeslagen' && weeksAgo >= 1 && weeksAgo <= 6) {
         dot.classList.add('retro-available');
@@ -1389,6 +1391,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (el) el.textContent = '📅 Your year — ' + currentYear;
     el = document.getElementById('community-title');
     if (el) el.textContent = 'Community — week ' + currentWeek;
+
+    // Update admin table "last check-in" cells
+    document.querySelectorAll('.admin-current-week').forEach(function(span) {
+      span.textContent = 'Week ' + currentWeek + ' (today)';
+    });
   }
 
   // Sluit popover bij klik buiten
