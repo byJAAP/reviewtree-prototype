@@ -778,7 +778,7 @@ body {
     <div class="hero-banner">
       <div class="hero-left">
         <div class="hero-greeting">Good morning, Jaap! 👋</div>
-        <div class="hero-sub">Week 24 · June 12, 2026 · Ready for your weekly review?</div>
+        <div class="hero-sub" id="hero-sub">Week 24 · Ready for your weekly review?</div>
         <div class="hero-social">
           <span>96 participants already did a review this week.</span>
           <strong>You too! 🎉</strong>
@@ -810,7 +810,7 @@ body {
       <div class="card" id="checkin-card" style="display:flex;flex-direction:column;">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
           <div>
-            <div class="card-title">✨ Weekly check-in: week 24</div>
+            <div class="card-title" id="checkin-title">✨ Weekly check-in: week 24</div>
             <div class="card-sub" id="checkin-sub">How was your weekly review?</div>
           </div>
           <div style="position:relative;flex-shrink:0">
@@ -858,7 +858,7 @@ body {
     <div class="year-row">
       <div class="card" style="margin:0;display:flex;flex-direction:column;">
         <div class="year-header" style="display:flex;align-items:center;justify-content:space-between;">
-          <div class="card-title">📅 Your year — 2026</div>
+          <div class="card-title" id="year-title">📅 Your year — 2026</div>
           <div class="legend-info-wrap">
             <button class="legend-info-btn" id="legend-btn" aria-label="Legend" onclick="toggleLegend(event)">ℹ</button>
             <div class="legend-tooltip" id="legend-tooltip">
@@ -924,7 +924,7 @@ body {
 
     <!-- Community -->
     <div class="card full-col">
-      <div class="card-title" style="margin-bottom:4px">Community — week 24</div>
+      <div class="card-title" id="community-title" style="margin-bottom:4px">Community — week 24</div>
       <div class="card-sub">See how others are growing</div>
       <div class="community-list">
         <div class="community-item">
@@ -1340,10 +1340,19 @@ document.addEventListener('DOMContentLoaded', function() {
   var retroDotEl = null;
   var weekStatuses = ['gedaan','gedaan','gedaan','gedaan','vakantie','vakantie','gedaan','gedaan','gedaan','overgeslagen','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','overgeslagen','gedaan','gedaan','gedaan','gedaan','current'];
 
+  // Calculate real ISO week number and year (available globally in this script)
+  var currentYear = new Date().getFullYear();
+  var currentWeek = (function() {
+    var now = new Date();
+    var jan4 = new Date(now.getFullYear(), 0, 4);
+    var startOfWeek1 = new Date(jan4);
+    startOfWeek1.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7));
+    var diff = now - startOfWeek1;
+    return Math.floor(diff / (7 * 24 * 60 * 60 * 1000)) + 1;
+  })();
+
   if (grid) {
-    var currentYear = new Date().getFullYear();
     var totalWeeks = isoWeeksInYear(currentYear);
-    var currentWeek = 24; // week 24 = huidige week in prototype
 
     for (var i = 0; i < totalWeeks; i++) {
       var dot = document.createElement('div');
@@ -1364,7 +1373,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     var foot = document.querySelector('.year-foot');
-    if (foot) foot.textContent = '24 of ' + totalWeeks + ' weeks checked in';
+    var checkedIn = weekStatuses.filter(function(s) { return s === 'gedaan'; }).length;
+    if (foot) foot.textContent = checkedIn + ' of ' + totalWeeks + ' weeks checked in';
+
+    // Populate dynamic week/year labels
+    var now = new Date();
+    var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var dateStr = monthNames[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+    var el;
+    el = document.getElementById('hero-sub');
+    if (el) el.textContent = 'Week ' + currentWeek + ' · ' + dateStr + ' · Ready for your weekly review?';
+    el = document.getElementById('checkin-title');
+    if (el) el.textContent = '✨ Weekly check-in: week ' + currentWeek;
+    el = document.getElementById('year-title');
+    if (el) el.textContent = '📅 Your year — ' + currentYear;
+    el = document.getElementById('community-title');
+    if (el) el.textContent = 'Community — week ' + currentWeek;
   }
 
   // Sluit popover bij klik buiten
@@ -1470,7 +1494,7 @@ function doCheckin(status) {
     btns.style.display = 'none';
     done.style.display = 'flex';
     text.textContent = labels[status];
-    sub.textContent = 'Week 24 · checked in';
+    sub.textContent = 'Week ' + currentWeek + ' · checked in';
   }
 }
 </script>
