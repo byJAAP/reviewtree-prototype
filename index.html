@@ -800,7 +800,7 @@ body {
         <div class="growth-inner">
           <div class="tree-display">
             <svg viewBox="0 0 36 36" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
-              <use href="#tree-jong"/>
+              <use id="dashboard-tree-use" href="#tree-jong"/>
             </svg>
           </div>
         </div>
@@ -1016,11 +1016,11 @@ body {
       <!-- Jouw boom -->
       <div class="card">
         <div class="card-title">🌿 Your tree</div>
-        <div class="card-sub">Phase 3 · Young tree · 14 weeks</div>
+        <div class="card-sub" id="profile-tree-sub">Phase 3 · Young tree · 14 weeks</div>
         <div style="display:flex;align-items:center;gap:20px;margin-bottom:16px">
           <div class="tree-display">
             <svg viewBox="0 0 36 36" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
-              <use href="#tree-jong"/>
+              <use id="profile-tree-use" href="#tree-jong"/>
             </svg>
           </div>
           <div style="flex:1">
@@ -1396,6 +1396,27 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.admin-current-week').forEach(function(span) {
       span.textContent = 'Week ' + currentWeek + ' (today)';
     });
+
+    // Determine tree stage based on number of completed (gedaan) weeks
+    var doneCount = weekStatuses.filter(function(s) { return s === 'gedaan'; }).length;
+    var treeStage, treeLabel, treePhase;
+    if (doneCount >= 35) {
+      treeStage = 'tree-vruchten'; treePhase = 'Phase 5'; treeLabel = 'Tree with fruits';
+    } else if (doneCount >= 20) {
+      treeStage = 'tree-volwassen'; treePhase = 'Phase 4'; treeLabel = 'Mature tree';
+    } else if (doneCount >= 10) {
+      treeStage = 'tree-jong'; treePhase = 'Phase 3'; treeLabel = 'Young tree';
+    } else if (doneCount >= 5) {
+      treeStage = 'tree-spruit'; treePhase = 'Phase 2'; treeLabel = 'Sprout';
+    } else {
+      treeStage = 'tree-zaad'; treePhase = 'Phase 1'; treeLabel = 'Seed';
+    }
+    var du = document.getElementById('dashboard-tree-use');
+    if (du) du.setAttribute('href', '#' + treeStage);
+    var pu = document.getElementById('profile-tree-use');
+    if (pu) pu.setAttribute('href', '#' + treeStage);
+    var ps = document.getElementById('profile-tree-sub');
+    if (ps) ps.textContent = treePhase + ' · ' + treeLabel + ' · ' + doneCount + ' weeks';
   }
 
   // Sluit popover bij klik buiten
