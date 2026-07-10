@@ -1286,7 +1286,7 @@ body {
 </div>
 
 <script>
-// Global: calculated once at load, used by doCheckin/doRetro/updateYearStats
+// Globals used across DOMContentLoaded and standalone functions
 var currentYear = new Date().getFullYear();
 var currentWeek = (function() {
   var now = new Date();
@@ -1295,6 +1295,8 @@ var currentWeek = (function() {
   startOfWeek1.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7));
   return Math.floor((now - startOfWeek1) / (7 * 24 * 60 * 60 * 1000)) + 1;
 })();
+var retroDotEl = null;
+var currentRetroWeek = null;
 
 document.addEventListener('DOMContentLoaded', function() {
   var screenMap = { login:'screen-login', dashboard:'screen-dashboard', checkin:'screen-checkin', profile:'screen-profile', admin:'screen-admin' };
@@ -1346,8 +1348,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Week grid
   var grid = document.getElementById('week-grid');
-  var currentRetroWeek = null;
-  var retroDotEl = null;
   // Prototype check-in history — statuses for weeks 1 through (currentWeek - 1).
   // 'current' is assigned dynamically in the grid loop based on the real ISO week.
   var weekStatuses = ['gedaan','gedaan','gedaan','gedaan','vakantie','vakantie','gedaan','gedaan','gedaan','overgeslagen','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','overgeslagen','gedaan','gedaan','gedaan','gedaan','gedaan','gedaan','overgeslagen','gedaan'];
