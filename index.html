@@ -1374,11 +1374,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     var foot = document.querySelector('.year-foot');
-    var checkedIn = weekStatuses.filter(function(s) { return s === 'gedaan'; }).length;
+    var totalCheckedIn = weekStatuses.filter(function(s) { return s !== 'current'; }).length;
+    var doneCount = weekStatuses.filter(function(s) { return s === 'gedaan'; }).length;
     var skippedCount = weekStatuses.filter(function(s) { return s === 'overgeslagen'; }).length;
-    if (foot) foot.textContent = checkedIn + ' of ' + totalWeeks + ' weeks checked in';
+    if (foot) foot.textContent = totalCheckedIn + ' of ' + totalWeeks + ' weeks checked in';
     var sd = document.getElementById('stat-done');
-    if (sd) sd.textContent = checkedIn;
+    if (sd) sd.textContent = doneCount;
     var ss = document.getElementById('stat-skipped');
     if (ss) ss.textContent = skippedCount;
 
@@ -1496,10 +1497,11 @@ function closeRetro() {
 
 function updateYearStats() {
   var dots = document.querySelectorAll('#week-grid .week-dot');
-  var done = 0, skipped = 0, total = 0;
+  var done = 0, skipped = 0, checkedIn = 0;
+  var totalWeeks = dots.length;
   dots.forEach(function(d) {
     if (d.classList.contains('future') || d.classList.contains('current')) return;
-    total++;
+    checkedIn++;
     if (d.classList.contains('gedaan')) done++;
     if (d.classList.contains('overgeslagen')) skipped++;
   });
@@ -1508,8 +1510,7 @@ function updateYearStats() {
   var ss = document.getElementById('stat-skipped');
   if (ss) ss.textContent = skipped;
   var foot = document.querySelector('.year-foot');
-  var totalWeeks = document.querySelectorAll('#week-grid .week-dot').length;
-  if (foot) foot.textContent = done + ' of ' + totalWeeks + ' weeks checked in';
+  if (foot) foot.textContent = checkedIn + ' of ' + totalWeeks + ' weeks checked in';
 }
 
 function doRetro(status) {
