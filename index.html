@@ -1431,7 +1431,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       // Make all past weeks clickable for retroactive check-in
       var weeksAgo = currentWeek - weekNum;
-      if (weeksAgo >= 1 && (status === 'gedaan' || status === 'overgeslagen' || status === 'vakantie')) {
+      if (weeksAgo >= 1 && weeksAgo <= 5 && (status === 'gedaan' || status === 'overgeslagen' || status === 'vakantie')) {
         dot.classList.add('retro-available');
         dot.dataset.week = weekNum;
         dot.addEventListener('click', openRetro);
@@ -1472,110 +1472,7 @@ document.addEventListener('DOMContentLoaded', function() {
       span.textContent = 'Week ' + currentWeek + ' (today)';
     });
 
-    // Determine tree stage based on number of completed (gedaan) weeks
-    var doneCount = weekStatuses.filter(function(s) { return s === 'gedaan'; }).length;
-    var treeStage, treeLabel, treePhase;
-    if (doneCount >= 40) {
-      treeStage = 'tree-vruchten'; treePhase = 'Phase 6'; treeLabel = 'Tree with fruits';
-    } else if (doneCount >= 30) {
-      treeStage = 'tree-volwassen'; treePhase = 'Phase 5'; treeLabel = 'Mature tree';
-    } else if (doneCount >= 20) {
-      treeStage = 'tree-groei'; treePhase = 'Phase 4'; treeLabel = 'Growing tree';
-    } else if (doneCount >= 10) {
-      treeStage = 'tree-jong'; treePhase = 'Phase 3'; treeLabel = 'Young tree';
-    } else if (doneCount >= 5) {
-      treeStage = 'tree-spruit'; treePhase = 'Phase 2'; treeLabel = 'Sprout';
-    } else {
-      treeStage = 'tree-zaad'; treePhase = 'Phase 1'; treeLabel = 'Seed';
-    }
-    var du = document.getElementById('dashboard-tree-use');
-    if (du) du.setAttribute('href', '#' + treeStage);
-    var pu = document.getElementById('profile-tree-use');
-    if (pu) pu.setAttribute('href', '#' + treeStage);
-    var ps = document.getElementById('profile-tree-sub');
-    if (ps) ps.textContent = treePhase + ' · ' + treeLabel + ' · ' + doneCount + ' weeks';
-
-    // Motivational text in Your growth card — rotates per visit, adapts to last check-in status
-    var lastStatus = weekStatuses.length > 0 ? weekStatuses[weekStatuses.length - 1] : 'gedaan';
-    var skipped = lastStatus === 'overgeslagen';
-    var growthTexts = {
-      'tree-zaad': {
-        ok: [
-          'Every strong tree starts as a seedling. Keep showing up!',
-          'The first leaves are showing. Great start!',
-          'You\'re planting a habit that can grow for years.'
-        ],
-        skipped: [
-          'Your seedling needs a little water. Ready to start growing again?',
-          'Every tree gets a slow week. Let\'s grow a new leaf together.',
-          'A small setback, a fresh start. Your seedling is waiting for you.'
-        ]
-      },
-      'tree-spruit': {
-        ok: [
-          'You\'re building momentum. One review at a time.',
-          'Growing steadily. Keep nurturing the habit.',
-          'Your weekly review routine is starting to take root.'
-        ],
-        skipped: [
-          'A few leaves are looking dry. Time to help your sprout thrive again.',
-          'Your sprout has paused its growth. One review can get it moving again.',
-          'Don\'t let your progress wither. Your sprout is counting on you.'
-        ]
-      },
-      'tree-jong': {
-        ok: [
-          'Your roots are growing stronger with every review.',
-          'Your tree is taking shape. Keep it growing.',
-          'Consistency is turning intention into a lasting habit.'
-        ],
-        skipped: [
-          'A branch has gone dry, but your roots are still strong.',
-          'You\'ve come a long way. Keep your young tree healthy and growing.',
-          'One missed check-in won\'t stop you. Let\'s get back on track.'
-        ]
-      },
-      'tree-groei': {
-        ok: [
-          'Weekly reflection is becoming part of who you are.',
-          'Stronger every week. Your habit is flourishing.',
-          'Your commitment is creating real momentum.'
-        ],
-        skipped: [
-          'Your tree needs a little care to keep flourishing.',
-          'A few dry branches today can become fresh growth tomorrow.',
-          'Strong trees recover quickly. Time for your next check-in.'
-        ]
-      },
-      'tree-volwassen': {
-        ok: [
-          'Consistency is paying off. Your tree is thriving.',
-          'You\'ve built something lasting. Well done!',
-          'Your habit is strong, steady, and deeply rooted.'
-        ],
-        skipped: [
-          'Your tree has deep roots. Don\'t let it miss the care it deserves.',
-          'Even mature trees need regular attention to stay healthy.',
-          'You\'ve built something valuable. Keep your tree thriving.'
-        ]
-      },
-      'tree-vruchten': {
-        ok: [
-          'Your commitment is bearing fruit. Keep inspiring others.',
-          'Time to enjoy the fruits of your consistency.',
-          'You\'ve turned weekly reflection into a way of life.'
-        ],
-        skipped: [
-          'Your tree has borne fruit for many weeks. Don\'t let the harvest fade.',
-          'A fruitful tree is worth caring for. Keep showing up.',
-          'Your consistency created this harvest. Protect it with your next review.'
-        ]
-      }
-    };
-    var stageTexts = growthTexts[treeStage];
-    var pool = skipped ? stageTexts.skipped : stageTexts.ok;
-    var growthSub = document.querySelector('.card-sub[style*="green-text"]');
-    if (growthSub && pool) growthSub.textContent = pool[Math.floor(Math.random() * pool.length)];
+    updateTree();
   }
 
   // Sluit popover bij klik buiten
@@ -1649,6 +1546,66 @@ function closeRetro() {
   currentRetroWeek = null;
 }
 
+function updateTree() {
+  var dots = document.querySelectorAll('#week-grid .week-dot');
+  var doneCount = 0;
+  dots.forEach(function(d) { if (d.classList.contains('gedaan')) doneCount++; });
+  var treeStage, treeLabel, treePhase;
+  if (doneCount >= 40) {
+    treeStage = 'tree-vruchten'; treePhase = 'Phase 6'; treeLabel = 'Tree with fruits';
+  } else if (doneCount >= 30) {
+    treeStage = 'tree-volwassen'; treePhase = 'Phase 5'; treeLabel = 'Mature tree';
+  } else if (doneCount >= 20) {
+    treeStage = 'tree-groei'; treePhase = 'Phase 4'; treeLabel = 'Growing tree';
+  } else if (doneCount >= 10) {
+    treeStage = 'tree-jong'; treePhase = 'Phase 3'; treeLabel = 'Young tree';
+  } else if (doneCount >= 5) {
+    treeStage = 'tree-spruit'; treePhase = 'Phase 2'; treeLabel = 'Sprout';
+  } else {
+    treeStage = 'tree-zaad'; treePhase = 'Phase 1'; treeLabel = 'Seed';
+  }
+  var du = document.getElementById('dashboard-tree-use');
+  if (du) du.setAttribute('href', '#' + treeStage);
+  var pu = document.getElementById('profile-tree-use');
+  if (pu) pu.setAttribute('href', '#' + treeStage);
+  var ps = document.getElementById('profile-tree-sub');
+  if (ps) ps.textContent = treePhase + ' · ' + treeLabel + ' · ' + doneCount + ' weeks';
+  var growthTexts = {
+    'tree-zaad': {
+      ok: ['Every strong tree starts as a seedling. Keep showing up!','The first leaves are showing. Great start!','You\'re planting a habit that can grow for years.'],
+      skipped: ['Your seedling needs a little water. Ready to start growing again?','Every tree gets a slow week. Let\'s grow a new leaf together.','A small setback, a fresh start. Your seedling is waiting for you.']
+    },
+    'tree-spruit': {
+      ok: ['You\'re building momentum. One review at a time.','Growing steadily. Keep nurturing the habit.','Your weekly review routine is starting to take root.'],
+      skipped: ['A few leaves are looking dry. Time to help your sprout thrive again.','Your sprout has paused its growth. One review can get it moving again.','Don\'t let your progress wither. Your sprout is counting on you.']
+    },
+    'tree-jong': {
+      ok: ['Your roots are growing stronger with every review.','Your tree is taking shape. Keep it growing.','Consistency is turning intention into a lasting habit.'],
+      skipped: ['A branch has gone dry, but your roots are still strong.','You\'ve come a long way. Keep your young tree healthy and growing.','One missed check-in won\'t stop you. Let\'s get back on track.']
+    },
+    'tree-groei': {
+      ok: ['Weekly reflection is becoming part of who you are.','Stronger every week. Your habit is flourishing.','Your commitment is creating real momentum.'],
+      skipped: ['Your tree needs a little care to keep flourishing.','A few dry branches today can become fresh growth tomorrow.','Strong trees recover quickly. Time for your next check-in.']
+    },
+    'tree-volwassen': {
+      ok: ['Consistency is paying off. Your tree is thriving.','You\'ve built something lasting. Well done!','Your habit is strong, steady, and deeply rooted.'],
+      skipped: ['Your tree has deep roots. Don\'t let it miss the care it deserves.','Even mature trees need regular attention to stay healthy.','You\'ve built something valuable. Keep your tree thriving.']
+    },
+    'tree-vruchten': {
+      ok: ['Your commitment is bearing fruit. Keep inspiring others.','Time to enjoy the fruits of your consistency.','You\'ve turned weekly reflection into a way of life.'],
+      skipped: ['Your tree has borne fruit for many weeks. Don\'t let the harvest fade.','A fruitful tree is worth caring for. Keep showing up.','Your consistency created this harvest. Protect it with your next review.']
+    }
+  };
+  var lastSkipped = false;
+  dots.forEach(function(d) {
+    if (!d.classList.contains('current') && !d.classList.contains('future')) lastSkipped = d.classList.contains('overgeslagen');
+  });
+  var stageTexts = growthTexts[treeStage];
+  var pool = lastSkipped ? stageTexts.skipped : stageTexts.ok;
+  var growthSub = document.querySelector('.card-sub[style*="green-text"]');
+  if (growthSub && pool) growthSub.textContent = pool[Math.floor(Math.random() * pool.length)];
+}
+
 function updateYearStats() {
   var dots = document.querySelectorAll('#week-grid .week-dot');
   var done = 0, skipped = 0, offtime = 0;
@@ -1670,6 +1627,7 @@ function doRetro(status) {
   retroDotEl.className = 'week-dot ' + status;
   closeRetro();
   updateYearStats();
+  updateTree();
 }
 
 function doInvite() {
