@@ -1425,7 +1425,7 @@ document.addEventListener('DOMContentLoaded', function() {
     for (var i = 0; i < totalWeeks; i++) {
       var dot = document.createElement('div');
       var weekNum = i + 1;
-      var status = weekNum === currentWeek ? 'current' : (weekNum < currentWeek && i < weekStatuses.length ? weekStatuses[i] : 'future');
+      var status = weekNum === currentWeek ? 'current' : (weekNum < currentWeek ? (i < weekStatuses.length ? weekStatuses[i] : 'overgeslagen') : 'future');
       dot.className = 'week-dot ' + status;
       dot.textContent = i + 1;
 
