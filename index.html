@@ -779,9 +779,8 @@ body {
       <div class="hero-left">
         <div class="hero-greeting">Good morning, Jaap! 👋</div>
         <div class="hero-sub" id="hero-sub">Week 24 · Ready for your weekly review?</div>
-        <div class="hero-social">
-          <span>96 participants already did a review this week.</span>
-          <strong>You too! 🎉</strong>
+        <div class="hero-social" id="hero-social">
+          <span id="hero-social-text">96 participants have completed their weekly review this week. Ready to join them?</span>
         </div>
       </div>
       <div class="hero-streak">
@@ -1553,6 +1552,13 @@ function doCheckin(status) {
   var currentDot = document.querySelector('#week-grid .week-dot.current');
   if (currentDot) currentDot.className = 'week-dot ' + status;
   updateYearStats();
+
+  // Update hero social text
+  var socialText = document.getElementById('hero-social-text');
+  if (socialText) {
+    var count = 96; // prototype number
+    socialText.textContent = count + ' participants have completed their weekly review this week. You\'re one of them!';
+  }
 }
 </script>
 </body>
