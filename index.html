@@ -927,7 +927,7 @@ body {
     <!-- Community -->
     <div class="card full-col">
       <div class="card-title" id="community-title" style="margin-bottom:4px">Community — week 24</div>
-      <div class="card-sub">See how others are growing</div>
+      <div class="card-sub" id="community-sub">See who's checked in this week</div>
       <div class="community-list">
         <div class="community-item">
           <div class="comm-avatar" style="background:#87bd36;color:white">MV</div>
@@ -1398,6 +1398,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (el) el.textContent = '📅 Your year — ' + currentYear;
     el = document.getElementById('community-title');
     if (el) el.textContent = 'Community — week ' + currentWeek;
+    var communitySubs = ["See who's checked in this week", "Discover other participants who have already checked in"];
+    var commSub = document.getElementById('community-sub');
+    if (commSub) commSub.textContent = communitySubs[Math.floor(Math.random() * communitySubs.length)];
 
     // Update admin table "last check-in" cells
     document.querySelectorAll('.admin-current-week').forEach(function(span) {
