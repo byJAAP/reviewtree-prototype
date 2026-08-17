@@ -1429,9 +1429,9 @@ document.addEventListener('DOMContentLoaded', function() {
       dot.className = 'week-dot ' + status;
       dot.textContent = i + 1;
 
-      // Make skipped weeks within 6 weeks clickable for retroactive check-in
+      // Make all past weeks clickable for retroactive check-in
       var weeksAgo = currentWeek - weekNum;
-      if (status === 'overgeslagen' && weeksAgo >= 1 && weeksAgo <= 6) {
+      if (weeksAgo >= 1 && (status === 'gedaan' || status === 'overgeslagen' || status === 'vakantie')) {
         dot.classList.add('retro-available');
         dot.dataset.week = weekNum;
         dot.addEventListener('click', openRetro);
